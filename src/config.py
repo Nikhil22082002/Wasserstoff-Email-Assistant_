@@ -14,6 +14,6 @@ GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemin
 SLACK_token = 'xoxb-8698313086771-8698027728964-MLgSg2KdE95DPQzdW5VkxRXD'
 channel="C08L111TK1D"
 # Calendar API settings could go here as well
-
+#till now not work on there
 # Database configuration (using SQLite for simplicity)
 DATABASE_FILE = 'emails.db'
