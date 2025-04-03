@@ -4,8 +4,8 @@ This project is an AI-powered personal email assistant that connects to Gmail, p
 
 Features
 - Email Integration: Fetch and parse emails using the Gmail API.(this assistant work for the only 10 mails becuse of the api limition)
-- LLM Integration: Use OpenAI GPT-3.5/4 to understand email content and generate responses.
-- **Tool Integrations: Connect with Slack, Calendar, and Web Search APIs.
+- LLM Integration: Use gemini api to understand email content and generate responses.
+- Tool Integrations: Connect with Slack, Calendar, and Web Search APIs.
 - Database Storage: Store email data for context and history.
 
  Setup Instructions
