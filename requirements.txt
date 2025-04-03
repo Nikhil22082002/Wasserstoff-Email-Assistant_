@@ -1,0 +1,8 @@
+
+#plaintext
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2
+openai
+sqlite3
+# Add any additional dependencies, e.g., slack_sdk, requests, etc.

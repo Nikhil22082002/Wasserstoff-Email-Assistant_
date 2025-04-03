@@ -1,0 +1,15 @@
+AI Email Assistant
+
+This project is an AI-powered personal email assistant that connects to Gmail, parses emails, uses an LLM for context understanding, and integrates with external tools (Slack, Calendar, Web search) to automate email actions.
+
+Features
+- Email Integration: Fetch and parse emails using the Gmail API.
+- LLM Integration: Use OpenAI GPT-3.5/4 to understand email content and generate responses.
+- **Tool Integrations: Connect with Slack, Calendar, and Web Search APIs.
+- Database Storage: Store email data for context and history.
+
+ Setup Instructions
+1. Clone the Repo:**  
+   ```bash
+   git clone https://github.com/NIKHIL22082002/AI-Email-Assistant.git
+   cd AI-Email-Assistant
