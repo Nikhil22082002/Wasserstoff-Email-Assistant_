@@ -6,8 +6,8 @@ GMAIL_TOKEN_FILE = 'token.json'
 GMAIL_SCOPES = ['https://mail.google.com/']
 
 # OpenAI API Key
-GEMINI_API_KEY = "AIzaSyCPax3AOqtloAcNHL0YNncG_qLMSfGwEvY"  # Replace with your actual API key
-GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=AIzaSyCPax3AOqtloAcNHL0YNncG_qLMSfGwEvY"  # Replace with your actual endpoint.  Make sure you have the key in there.
+GEMINI_API_KEY = "AIzaSyCPax3AOqtloAcNHL0YNncG_qLMSfGwEvY"  # Replace this with your api key
+GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=AIzaSyCPax3AOqtloAcNHL0YNncG_qLMSfGwEvY"  # dont need to repalce it if you used gemini-1.5-pro model.  Make sure you have the key in there.
 
 
 # Slack API key (if integrating)
