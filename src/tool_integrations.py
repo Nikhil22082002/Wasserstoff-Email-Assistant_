@@ -1,14 +1,14 @@
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
-
-def send_slack_message(message, channel="C08L111TK1D"):
+from config import SLACK_token,channel
+def send_slack_message(message,channel):
     """
     Sends a message to a specified Slack channel.
     :param message: The text message to send.
     :param channel: The Slack channel ID.
     :return: Response from Slack API.
     """
-    client = WebClient(token='xoxb-8698313086771-8698027728964-MLgSg2KdE95DPQzdW5VkxRXD')
+    client = WebClient(SLACK_token)
     try:
         response = client.chat_postMessage(channel=channel, text=message)
         print(f"Slack message sent to {channel}: {message}")

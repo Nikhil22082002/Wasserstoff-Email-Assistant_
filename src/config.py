@@ -11,8 +11,8 @@ GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemin
 
 
 # Slack API key (if integrating)
-SLACK_API_KEY = 'YOUR_SLACK_API_KEY'
-
+SLACK_token = 'xoxb-8698313086771-8698027728964-MLgSg2KdE95DPQzdW5VkxRXD'
+channel="C08L111TK1D"
 # Calendar API settings could go here as well
 
 # Database configuration (using SQLite for simplicity)
