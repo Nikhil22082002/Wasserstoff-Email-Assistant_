@@ -23,4 +23,66 @@ Data Flow
 
    Google Calendar: A calendar event is created based on extracted date/time using the Google Calendar API.
 
+Requirements
    
+   Python 3.x
+   Gmail API
+   Slack API
+   Google Calendar API
+   Required Python Libraries (listed in requirements.txt)
+
+Setting Up API Credentials
+
+Gmail API
+   Go to the Google Developers Console.
+
+   Create a new project.
+
+   Enable the Gmail API for the project.
+
+   Go to APIs & Services > Credentials.
+
+   Create OAuth 2.0 Client IDs credentials and download the JSON file (credentials.json).
+
+   Place the credentials.json file in your project directory.
+
+Google Calendar API
+   Go to the Google Developers Console.
+
+   In the same project as above, enable the Google Calendar API.
+
+   Use the same credentials (credentials.json) for both Gmail and Calendar APIs.
+
+   No additional steps are needed as long as the scopes for both APIs are defined correctly (SCOPES in the code).
+
+Slack API
+   Go to Slack API.
+
+   Create a new Slack App.
+
+   Add the chat:write permission under OAuth & Permissions.
+
+   Install the app to your workspace.
+
+   Copy the Bot User OAuth Token and save it as SLACK_token in your config.py file.
+
+   Storing and Using Tokens
+   The first time you run the project, it will prompt you to authenticate the Gmail/Calendar API using OAuth. It will create a token.json file in your project directory to store your access tokens.
+
+   The Slack token is stored in config.py and is used to send messages to Slack.   
+
+Installation
+Clone the Repository 
+   
+   ## git clone https://your-repository-url.git
+   cd your-repository-name
+
+Install the required libraries:
+
+   pip install -r requirements.txt
+Set Up Configuration
+   
+   Place your credentials.json (from Gmail and Google Calendar) in the root directory of the project.
+
+   Add your Slack token to the config.py file:
+
