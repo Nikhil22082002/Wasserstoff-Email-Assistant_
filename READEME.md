@@ -1,15 +1,26 @@
-AI Email Assistant
+Project Overview
+This project automates the process of managing and responding to emails, forwarding important messages to Slack, and scheduling calendar events based on the content of the emails. The main components include integration with Gmail, Slack, and Google Calendar APIs, with additional functionality to extract dates and times from email content and schedule meetings accordingly.
 
-This project is an AI-powered personal email assistant that connects to Gmail, parses emails, uses an LLM for context understanding, and integrates with external tools (Slack, Calendar, Web search) to automate email actions.
 
-Features
-- Email Integration: Fetch and parse emails using the Gmail API.(this assistant work for the only 10 mails becuse of the api limition)
-- LLM Integration: Use gemini api to understand email content and generate responses.
-- Tool Integrations: Connect with Slack, Calendar, and Web Search APIs.
-- Database Storage: Store email data for context and history.
+Key Features:
+   
+   Email Parsing: Fetches unread emails from Gmail, processes the subject, sender, and snippet.
+   
+   Slack Integration: Sends notifications to Slack with email details (subject, sender, snippet).
+   
+   Google Calendar Integration: Schedules calendar events based on extracted dates/times from emails.
+   
+   Date Parsing: Uses dateparser to extract date/time from email snippets and schedule events accordingly.
 
- Setup Instructions
-1. Clone the Repo:**  
-   ```bash
-   git clone https://github.com/NIKHIL22082002/AI-Email-Assistant.git
-   cd AI-Email-Assistant
+Data Flow
+   Inbox (Gmail API): The system first retrieves unread emails using the Gmail API.
+
+   Processing Layer: The email content is analyzed for important information like dates, subjects, and senders.
+
+   LLM (Date Parser & Logic): The LLM (Date Parser) processes the email's snippet to extract date and time. If a date is present, it is used to schedule a calendar event.
+
+   Slack Notification: Important email details are sent to Slack via the Slack API to notify the user.
+
+   Google Calendar: A calendar event is created based on extracted date/time using the Google Calendar API.
+
+   
