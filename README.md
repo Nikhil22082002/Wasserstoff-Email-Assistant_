@@ -83,6 +83,9 @@ Install the required libraries:
 Set Up Configuration
    
    Place your credentials.json (from Gmail and Google Calendar) in the root directory of the project.
+   and slack token and channel
 
+limitions:
+   we generate relply 10 only in the single run due to free api limit
 
-            
+   
