@@ -1,6 +1,6 @@
 import sqlite3
 from config import DATABASE_FILE
-
+# Function for creating the database
 def init_db():
     conn = sqlite3.connect(DATABASE_FILE)
     c = conn.cursor()
@@ -17,6 +17,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+#insert the mails in the database with this function
 def insert_email(email_info):
     conn = sqlite3.connect(DATABASE_FILE)
     c = conn.cursor()

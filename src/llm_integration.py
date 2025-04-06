@@ -2,6 +2,7 @@ import requests
 import json  # Import the json module
 from config import GEMINI_API_KEY, GEMINI_ENDPOINT
 
+#generate the email reply with llm model of gemini
 def generate_email_response_gemini(prompt, context=""):
     """
     Use Gemini's API to generate a draft email response.

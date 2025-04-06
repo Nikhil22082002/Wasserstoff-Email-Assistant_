@@ -8,12 +8,13 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.errors import HttpError
 from config import SLACK_token
-# Constants for Slack and Google API credentials
+import re
+import dateparser
 
-CHANNEL_ID = 'C08LU6MHC20'  # Change to your desired Slack channel ID
+CHANNEL_ID = 'C08LU6MHC20'  # Slack channel ID
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/calendar']
 
-# Authenticate with Gmail API
+# agin authenticate the gmail
 def authenticate_gmail():
     creds = None
     if os.path.exists('token.json'):
@@ -22,14 +23,12 @@ def authenticate_gmail():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
     return build('gmail', 'v1', credentials=creds)
-
-# Fetch unread emails from Gmail
+#this fucntion to fetch the mails from the gamil
 def fetch_emails(service, query="is:unread"):
     results = service.users().messages().list(userId='me', q=query).execute()
     messages = results.get('messages', [])
@@ -53,7 +52,7 @@ def fetch_emails(service, query="is:unread"):
             emails.append(email_data)
     return emails
 
-# Send Slack message
+# in this function at which channel slack message sent details
 def send_slack_message(message, channel=CHANNEL_ID):
     client = WebClient(token=SLACK_token)
     try:
@@ -64,12 +63,7 @@ def send_slack_message(message, channel=CHANNEL_ID):
         print(f"⚠️ Error sending Slack message: {e.response['error']}")
         return None
 
-# Forward email to Slack
 def forward_email_to_slack(email):
-    """
-    Forwards important emails to Slack.
-    :param email: Dictionary containing email details (subject, sender, snippet).
-    """
     subject = email.get('subject', 'No Subject')
     sender = email.get('from', 'Unknown Sender')
     snippet = email.get('snippet', 'No Content')
@@ -81,7 +75,6 @@ def forward_email_to_slack(email):
     
     send_slack_message(message)
 
-# Authenticate with Google Calendar API
 def authenticate_google_calendar():
     creds = None
     if os.path.exists('token.json'):
@@ -95,53 +88,40 @@ def authenticate_google_calendar():
             token.write(creds.to_json())
     return build('calendar', 'v3', credentials=creds)
 
-# Schedule a calendar event
-def schedule_calendar_event(event_details):
-    service = authenticate_google_calendar()
-    event = {
-        'summary': event_details['title'],
-        'location': 'Virtual',
-        'start': {
-            'dateTime': event_details['date'] + "T09:00:00",  # Adjust the time if needed
-            'timeZone': 'Asia/Kolkata',
-        },
-        'end': {
-            'dateTime': event_details['date'] + "T10:00:00",  # Adjust the time if needed
-            'timeZone': 'Asia/Kolkata',
-        },
-    }
-    created_event = service.events().insert(calendarId='primary', body=event).execute()
-    print(f"✅ Event created: {created_event.get('htmlLink')}")
 
 
-def handle_email_for_event(email):
-    """
-    Process email content and schedule a meeting based on the details.
-    """
-    email_snippet = email.get('snippet', '')
-    date, time = extract_date_and_time_from_email(email_snippet)
+#extract the date and time from the mail in all the possible formate
+def extract_date_and_time_from_email(snippet):
+    if not snippet:
+        return None
 
-    # Example: Create event with extracted date and time
-    event_details = {
-        'title': f"Meeting with {email['from']}",
-        'date': date
-    }
-    schedule_calendar_event(event_details, start_time=time, end_time="10:00:00")
-# Extract date from email (Optional: you can improve this to parse dates dynamically from the email content)
-def extract_date_from_email(email_snippet):
-    parsed_date = dateparser.parse(email_snippet)
-    if parsed_date:
-        return parsed_date.strftime("%Y-%m-%d")
-    return "No data avi"  # Default date if no date is found
+    # Look for common date + time phrases in the text
+    patterns = [
+        r'\b\d{1,2}(st|nd|rd|th)?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\s+(at\s+)?\d{1,2}:\d{2}\s*(AM|PM|am|pm)?',
+        r'\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\s+(at\s+)?\d{1,2}:\d{2}\s*(AM|PM|am|pm)?',
+        r'\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\s+(at\s+)?\d{1,2}:\d{2}\s*(AM|PM|am|pm)?',
+        r'\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+\d{1,2}(st|nd|rd|th)?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\s+(at\s+)?\d{1,2}:\d{2}\s*(AM|PM|am|pm)?'
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, snippet, re.IGNORECASE)
+        if match:
+            date_time_str = match.group()
+            parsed = dateparser.parse(date_time_str, settings={'PREFER_DATES_FROM': 'future'})
+            if parsed:
+                return parsed.strftime('%Y-%m-%d'), parsed.strftime('%H:%M:%S')  # 24-hour format
+
+    # Fallback if no match
+    fallback = dateparser.parse(snippet, settings={'PREFER_DATES_FROM': 'future'})
+    if fallback:
+        return fallback.strftime('%Y-%m-%d'), fallback.strftime('%H:%M:%S')  # 24-hour format
+
+    return None
 
 
-def extract_date_and_time_from_email(email_snippet):
-    parsed_date = dateparser.parse(email_snippet)
-    if parsed_date:
-        return parsed_date.strftime("%Y-%m-%d"), parsed_date.strftime("%H:%M:%S")
-    return "No data available", "09:00:00"  # Default date and time if not found
+
+# in this function check in the mail any relate to meeting  
 
 def is_meeting_related(snippet):
     meeting_keywords = ["meeting", "schedule", "appointment", "on", "tomorrow", "friday", "meeting on"]
     return any(keyword in snippet.lower() for keyword in meeting_keywords)
-
