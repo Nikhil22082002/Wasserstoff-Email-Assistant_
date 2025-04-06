@@ -84,5 +84,5 @@ Set Up Configuration
    
    Place your credentials.json (from Gmail and Google Calendar) in the root directory of the project.
 
-   Add your Slack token to the config.py file:
+
             
