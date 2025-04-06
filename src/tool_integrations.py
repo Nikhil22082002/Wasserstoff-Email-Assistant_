@@ -9,12 +9,11 @@ from google.auth.transport.requests import Request
 from googleapiclient.errors import HttpError
 from config import SLACK_token
 import re
-import dateparser
+from datetime import datetime 
 
 CHANNEL_ID = 'C08LU6MHC20'  # Slack channel ID
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/calendar']
 
-# agin authenticate the gmail
 def authenticate_gmail():
     creds = None
     if os.path.exists('token.json'):
@@ -28,7 +27,7 @@ def authenticate_gmail():
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
     return build('gmail', 'v1', credentials=creds)
-#this fucntion to fetch the mails from the gamil
+
 def fetch_emails(service, query="is:unread"):
     results = service.users().messages().list(userId='me', q=query).execute()
     messages = results.get('messages', [])
@@ -52,15 +51,14 @@ def fetch_emails(service, query="is:unread"):
             emails.append(email_data)
     return emails
 
-# in this function at which channel slack message sent details
 def send_slack_message(message, channel=CHANNEL_ID):
     client = WebClient(token=SLACK_token)
     try:
         response = client.chat_postMessage(channel=channel, text=message)
-        print(f"✅ Slack message sent to {channel}: {message}")
+        print(f"Slack message sent to {channel}: {message}")
         return response
     except SlackApiError as e:
-        print(f"⚠️ Error sending Slack message: {e.response['error']}")
+        print(f" Error sending Slack message: {e.response['error']}")
         return None
 
 def forward_email_to_slack(email):
@@ -90,38 +88,46 @@ def authenticate_google_calendar():
 
 
 
-#extract the date and time from the mail in all the possible formate
-def extract_date_and_time_from_email(snippet):
-    if not snippet:
-        return None
+#extract the date and time in all formate
+def extract_datetime_from_email(email_body):
+    date_pattern = r'\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\w+ \d{1,2},? \d{4}|\d{4}-\d{2}-\d{2})\b'
+    time_pattern = r'\b(\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM|am|pm)?)\b'
 
-    # Look for common date + time phrases in the text
-    patterns = [
-        r'\b\d{1,2}(st|nd|rd|th)?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\s+(at\s+)?\d{1,2}:\d{2}\s*(AM|PM|am|pm)?',
-        r'\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\s+(at\s+)?\d{1,2}:\d{2}\s*(AM|PM|am|pm)?',
-        r'\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\s+(at\s+)?\d{1,2}:\d{2}\s*(AM|PM|am|pm)?',
-        r'\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+\d{1,2}(st|nd|rd|th)?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\s+(at\s+)?\d{1,2}:\d{2}\s*(AM|PM|am|pm)?'
-    ]
+    date_match = re.search(date_pattern, email_body)
+    time_match = re.search(time_pattern, email_body)
 
-    for pattern in patterns:
-        match = re.search(pattern, snippet, re.IGNORECASE)
-        if match:
-            date_time_str = match.group()
-            parsed = dateparser.parse(date_time_str, settings={'PREFER_DATES_FROM': 'future'})
-            if parsed:
-                return parsed.strftime('%Y-%m-%d'), parsed.strftime('%H:%M:%S')  # 24-hour format
+    print(f"Found Date: {date_match.group(0) if date_match else ' No date'}")
+    print(f"Found Time: {time_match.group(0) if time_match else ' No time'}")
 
-    # Fallback if no match
-    fallback = dateparser.parse(snippet, settings={'PREFER_DATES_FROM': 'future'})
-    if fallback:
-        return fallback.strftime('%Y-%m-%d'), fallback.strftime('%H:%M:%S')  # 24-hour format
+    if date_match:
+        date_str = date_match.group(0)
+        time_str = time_match.group(0).upper() if time_match else "10:00 AM" 
+
+        date_obj = None
+        time_obj = None
+        #formate of dates
+        for fmt in ('%d/%m/%Y', '%m/%d/%Y', '%d-%m-%Y', '%m-%d-%Y', '%d/%m/%y', '%m/%d/%y',
+                    '%B %d, %Y', '%B %d,%Y', '%b %d, %Y', '%b %d,%Y','%Y-%m-%d'):
+            try:
+                date_obj = datetime.strptime(date_str, fmt).date()
+                break
+            except ValueError:
+                continue
+
+        for fmt in ('%I:%M %p', '%H:%M', '%I:%M:%S %p', '%H:%M:%S'):
+            try:
+                time_obj = datetime.strptime(time_str, fmt).time()
+                break
+            except ValueError:
+                continue
+
+        if date_obj and time_obj:
+            return datetime.combine(date_obj, time_obj)
 
     return None
 
 
-
-# in this function check in the mail any relate to meeting  
-
+# function to check mail is related to meeting or not
 def is_meeting_related(snippet):
     meeting_keywords = ["meeting", "schedule", "appointment", "on", "tomorrow", "friday", "meeting on"]
     return any(keyword in snippet.lower() for keyword in meeting_keywords)
