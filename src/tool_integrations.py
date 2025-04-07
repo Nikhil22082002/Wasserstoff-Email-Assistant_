@@ -11,7 +11,7 @@ from config import SLACK_token
 import re
 from datetime import datetime 
 
-CHANNEL_ID = 'C08LU6MHC20'  # Slack channel ID
+CHANNEL_ID = ''  # Slack channel ID
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/calendar']
 
 def authenticate_gmail():

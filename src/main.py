@@ -1,5 +1,4 @@
-import re
-import dateparser
+
 from datetime import datetime
 from email_fetcher import authenticate_gmail, fetch_emails
 from calendar_utils import schedule_calendar_event
@@ -13,10 +12,10 @@ def main():
     # Initialize database
     init_db()
 
-    # Authenticate and fetch primary unread emails (limit to 5)
+    # Authenticate and fetch primary unread emails (limit to 10)
     service = authenticate_gmail()
     query = "in:inbox category:primary is:unread"
-    emails = fetch_emails(service, query=query)[:2]
+    emails = fetch_emails(service, query=query)[:10]
 
     for email in emails:
         print(f" Processing email: {email.get('subject')}")
@@ -41,7 +40,7 @@ def main():
                 except ValueError as e:
                     print(f" Error formatting date/time: {e}")
             else:
-                print(" No specific date/time found. Skipping this email.")
+                print(" No meeting found on mail. Skipping this email.")
 
 
 
